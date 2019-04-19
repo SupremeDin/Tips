@@ -1,0 +1,28 @@
+一、搭建NFS
+1、执行命令：sudo apt-get install nfs-kernel-server
+2、执行命令：mkdir -p /mnt/nfs 建立一个nfs服务的专有的文件夹，路径自行设置，
+                     chmod 777 /mnt/nfs 保证该共享的文件夹权限足够（权限设置不好后面会出错）
+3、建立好文件夹后，接着执行命令：sudo vim /etc/exports 配置nfs
+4、在最后一行添加：
+                /mnt/nfs 192.168.0. *(insecure,sync,rw,no_root_squash)  /*修改完上述配置文件保存退出,该命令前没有#*/
+	(这一行的含义是：      /mnt/nfs：与nfs服务客户端共享的目录，这个路径必须和你前面设置的文件的路径一致！
+			*：允许所有的网段访问，也可以使用具体的IP
+			rw：挂接此目录的客户端对该共享目录具有读写权限
+			sync：资料同步写入内存和硬盘
+			no_root_squash：root用户具有对根目录的完全管理访问权限。
+			no_subtree_check：不检查父目录的权限）
+	
+6、执行命令：#/etc/init.d/rpcbind restart  重启rpcbind服务。
+7、执行命令:  # /etc/init.d/nfs-kernel-server restart  重启nfs服务。(每次修改完exports文件都要重启)
+8、测试nfs搭建是否成功：showmount -e  若成功 则显示该主机被共享的文件夹路径 若没有显示 返回第一步重新搭建
+
+
+二、挂载
+ifconfig显示本机当前的IP
+若没有IP，则使用sudo ifconfig eno1 192.168.0.191 来手动设置IP
+hisi板子的ip为192.168.0.193
+相互ping通
+ping通之后（ubuntu主机ifconfig显示ip，若没有ip 则使用sudo ifconfig eno1 192.168.0.191设置）
+在板子的root路径下：mount -t nfs -o nolock 192.168.0.191:/mnt/nfs  /mnt/udisk
+/*192.168.0.191:/mnt/nfs:ubuntu主机上被共享的文件夹
+ 若成功 udisk下即可显示共享文件夹nfs下的所有目录*/

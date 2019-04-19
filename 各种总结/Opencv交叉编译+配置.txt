@@ -1,0 +1,46 @@
+1.	炽灯下载库，安装cmake,安装交叉编译工具链；
+2.	首先,确认库文件的安装目录,这里默认安装一般是/usr/local,我们这里改为/opt/hisi-linux/x86-arm，那么，我们在sudo make install后
+3.	这里注意一点，安装路径可以采用/opt/hisi-linux/x86-arm，
+4.	进入/opt/hisi-linux/x86-arm，建立pkgconfig目录，进入目录，建立一个名为opencv-hisi.pc的文件。
+#gedit opencv-hisi.pc
+在里面夹入下面一段话；
+prefix=/opt/hisi-linux/x86-arm
+prefix1=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir_old=${prefix}/include/opencv
+includedir_new=${prefix}/include
+includedir_old1=${prefix}/include/opencv2
+includedir_new1=${prefix1}/include
+Name: opencv-hisi
+Description: open source computer vision library
+Version:2.4
+Cflags: -I${includedir_old} -I${includedir_new} -I${includedir_old1} -I${includedir_new1}
+Libs:-L${exec_prefix}/lib -lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_imgproc -lopencv_legacy -lopencv_objdetect -lopencv_ml -lopencv_stitching -lopencv_video -lopencv_ts -lopencv_highgui -lopencv_features2d -lopencv_flann -lopencv_gpu
+注意：在编译的时候，由于你可能缺少某个库，会提示找不到那个库，这时，你可以在opencv-hisi.pc里面将这个库删除。
+如图所示：
+lib 
+2．找到/etc/ld.so.conf.d文件，采用命令
+#gedit /etc/ld.so.conf.d/opencv.config
+输入
+/opt/hisi-linux/x86-arm/lib
+/usr/local/lib
+执行命令：/sbin/ldconfig
+3、配置PKG_CONFIG_PATH
+#gedit /etc/bash.bashrc
+在文档最后加
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/hisi-linux/x86-arm/pkgconfig
+export PKG_CONFIG_PATH
+执行命令：source /etc/bash.bashrc
+
+##############入export PKG_CONFIG_PATH=/usr/local/lib:$PKG_CONFIG_PATH
+4. 测试#pkg-config --libs –cflags opencv-hisi
+会显示相应的头文件和库即可
+5.编译程序
+ 
+
+进入源文件目录：执行：
+Arm-hisiv200-linux-g++ –o dft dft.cpp –lpthread –lrt  `pkg-config –libs –cflags opencv-hisi`
+编译成功。
+这里需要注意，目标文件放在源文件前面，要不然，编译会出错，提示找不到main函数。
+注意：每次需要进行编译时，可能需要运行/sbin/ldconfig和source bash.bashrc，进行环境变量的初始化，要不然，可能编译出错。

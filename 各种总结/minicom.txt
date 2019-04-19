@@ -1,0 +1,6 @@
+下载minicom
+====
+
+**亲测有用链接：**
+https://blog.csdn.net/nightwish2018/article/details/51771519
+按照链接的步骤进行配置minicom
